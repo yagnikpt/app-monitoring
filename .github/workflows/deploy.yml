@@ -6,8 +6,9 @@ on:
     workflow_dispatch:
 
 permissions:
-    contents: "read"
-    packages: "write"
+    contents: read
+    packages: write
+    id-token: write
 
 env:
     AZURE_WEBAPP_NAME: "yagnik-apps-monitoring"
