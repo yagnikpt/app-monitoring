@@ -33,32 +33,21 @@ jobs:
               uses: docker/build-push-action@v6
               with:
                   file: Dockerfile.nginx
-                  push: true
                   tags: ghcr.io/${{ github.repository_owner }}/nginx-configured:latest
+                  push: true
 
             - name: Build Prometheus container
               uses: docker/build-push-action@v6
               with:
                   file: Dockerfile.prometheus
-                  push: true
                   tags: ghcr.io/${{ github.repository_owner }}/prometheus-configured:latest
+                  push: true
 
     deploy:
         runs-on: ubuntu-latest
         needs: build
 
         steps:
-            - name: Configure GHCR credentials on Azure Web App
-              uses: azure/appservice-settings@v1
-              with:
-                  app-name: ${{ env.AZURE_WEBAPP_NAME }}
-                  app-settings-json: |
-                      [
-                        {"name": "DOCKER_REGISTRY_SERVER_URL", "value": "https://ghcr.io"},
-                        {"name": "DOCKER_REGISTRY_SERVER_USERNAME", "value": "${{ github.actor }}"},
-                        {"name": "DOCKER_REGISTRY_SERVER_PASSWORD", "value": "${{ secrets.REGISTRY_SERVER_PASSWORD }}"}
-                      ]
-
             - name: Deploy multi-container app
               uses: azure/webapps-deploy@v2
               with:
