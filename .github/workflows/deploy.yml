@@ -11,7 +11,7 @@ permissions:
     id-token: write
 
 env:
-    AZURE_WEBAPP_NAME: "yagnik-apps-monitoring"
+    AZURE_WEBAPP_NAME: "yagnik-monitoring-apps"
 
 jobs:
     build:
@@ -56,11 +56,33 @@ jobs:
                   tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                   subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+            - name: Set Web App ACR authentication
+              uses: Azure/appservice-settings@v1
+              with:
+                app-name: ${{ env.AZURE_WEBAPP_NAME }}
+                app-settings-json: |
+                  [
+                      {
+                          "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                          "value": "${{ secrets.REGISTRY_SERVER_PASSWORD }}",
+                          "slotSetting": false
+                      },
+                      {
+                          "name": "DOCKER_REGISTRY_SERVER_URL",
+                          "value": "https://ghcr.io",
+                          "slotSetting": false
+                      },
+                      {
+                          "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                          "value": "${{ github.repository_owner }}",
+                          "slotSetting": false
+                      }
+                  ]
+
             - name: Deploy multi-container app
               uses: azure/webapps-deploy@v2
               with:
                   app-name: ${{ env.AZURE_WEBAPP_NAME }}
-                  publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
                   sitecontainers-config: >-
                       [
                       	{
